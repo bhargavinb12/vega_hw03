@@ -6,20 +6,29 @@
 
   "data": [
     {
-      "name": "unemp",
+      "name": "damage",
       "url": "https://raw.githubusercontent.com/bhargavinb12/vega_hw03/master/losses2015_transformed.csv",
-      "format": {"type": "csv", "parse": "auto"}
-    },
+      "format": {"type": "csv", "parse": "auto"},
+      "transform": [
+        {"type": "aggregate",
+         "groupby": ["State_Code"],
+         "ops": ["sum"],
+         "fields": ["Amount"],
+          "as": ["Amount"]
+      
+        }
+          ]},
     {
       "name": "counties",
       "url": "https://raw.githubusercontent.com/bhargavinb12/vega_hw03/master/us-10m.json",
-      "format": {"type": "topojson", "feature": "states"},
-      "transform": [
-        { "type": "lookup", "from": "unemp", "key": "State_code", "fields": ["State_Code"], "values": ["Amount"] },
-        { "type": "filter", "expr": "(datum.Amount) !=null" }
-      ]
-    }
-  ],
+       "format": {"type": "topojson", "feature": "states"},
+     "transform": [
+       {  "type": "lookup", "from": "damage", "key": "State_Code", "fields": ["id"], "values": ["Amount","State_Abv"] },
+       { "type": "filter", "expr": "datum.Amount != null" }
+      
+     ]
+   }
+ ],
 
   "projections": [
     {
@@ -32,7 +41,7 @@
     {
       "name": "color",
       "type": "quantize",
-      "domain": [0, 0.99],
+      "domain": [0, 400000000],
       "range": {"scheme": "blues", "count": 7}
     }
   ],
@@ -41,8 +50,8 @@
     {
       "fill": "color",
       "orient": "bottom-right",
-      "title": "Damage",
-      "format": "0.1%"
+      "title": "Damage"
+    
      
     }
   ],
@@ -54,7 +63,7 @@
       
       "encode": {
         
-        "enter": { "tooltip": {"signal": "format(datum.Amount, '0.1%')"}},
+        "enter": { "tooltip": {"signal": "format(datum.Amount, '1')"}},
         "update": { "fill": {"scale": "color", "field": "Amount"} },
         "hover": { "fill": {"value": "red"} }
       },
